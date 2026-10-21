@@ -37,6 +37,6 @@ jobs:
 ## Behavior
 
 - Runs checkout, Node setup (with dependency caching), lockfile-aware install, then `lint`, `typecheck`, `test`, and `build`.
-- Each of those four steps runs only if the matching script exists in `package.json` (via `npm pkg get scripts.<name>`). Missing scripts are skipped with a notice; the job still succeeds.
+- Each of those four steps runs only if the matching script exists as a string in `package.json` (read directly with Node). Missing scripts are skipped with a notice; the job still succeeds.
 - If there is no `package.json` in `working-directory`, the workflow succeeds and posts a clear notice that Node CI was skipped.
 - Permissions are least-privilege (`contents: read`). Concurrent runs for the same ref cancel superseded ones.

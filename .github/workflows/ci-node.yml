@@ -109,11 +109,13 @@ jobs:
               ;;
           esac
 
+      # Read scripts from package.json directly. Do not use `npm pkg get scripts.X`:
+      # for a missing key it prints `{}` (not null), so empty/null checks never skip.
       - name: Lint
         if: steps.pkg.outputs.exists == 'true'
         run: |
-          VALUE="$(npm pkg get scripts.lint)"
-          if [ "$VALUE" = "null" ] || [ -z "$VALUE" ]; then
+          VALUE="$(node -p "const v=require('./package.json').scripts?.lint; typeof v==='string'?v:''")"
+          if [ -z "$VALUE" ]; then
             echo "::notice::No scripts.lint in package.json — skipping lint."
             exit 0
           fi
@@ -126,8 +128,8 @@ jobs:
       - name: Typecheck
         if: steps.pkg.outputs.exists == 'true'
         run: |
-          VALUE="$(npm pkg get scripts.typecheck)"
-          if [ "$VALUE" = "null" ] || [ -z "$VALUE" ]; then
+          VALUE="$(node -p "const v=require('./package.json').scripts?.typecheck; typeof v==='string'?v:''")"
+          if [ -z "$VALUE" ]; then
             echo "::notice::No scripts.typecheck in package.json — skipping typecheck."
             exit 0
           fi
@@ -140,8 +142,8 @@ jobs:
       - name: Test
         if: steps.pkg.outputs.exists == 'true'
         run: |
-          VALUE="$(npm pkg get scripts.test)"
-          if [ "$VALUE" = "null" ] || [ -z "$VALUE" ]; then
+          VALUE="$(node -p "const v=require('./package.json').scripts?.test; typeof v==='string'?v:''")"
+          if [ -z "$VALUE" ]; then
             echo "::notice::No scripts.test in package.json — skipping test."
             exit 0
           fi
@@ -154,8 +156,8 @@ jobs:
       - name: Build
         if: steps.pkg.outputs.exists == 'true'
         run: |
-          VALUE="$(npm pkg get scripts.build)"
-          if [ "$VALUE" = "null" ] || [ -z "$VALUE" ]; then
+          VALUE="$(node -p "const v=require('./package.json').scripts?.build; typeof v==='string'?v:''")"
+          if [ -z "$VALUE" ]; then
             echo "::notice::No scripts.build in package.json — skipping build."
             exit 0
           fi
