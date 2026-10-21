@@ -39,11 +39,19 @@ SaaS s platbami výhradně přes in-app subscriptions (App Store, Google Play). 
 
 ### Purge
 
-- `core.shouldPurgeReferenceContent(e, lastRefreshAt, now, offlineTolerance = 72h)` → `true` když:
-  - `status === expired`, nebo
-  - `now > validUntil` a aplikace neobnovila entitlements v toleranci
-- **Grace nikdy nepurgeuje**
-- Maže se jen `kind: reference`, nikdy notes
+- `core.shouldPurgeReferenceContent(e: Entitlements, lastRefreshAt: Date | null, now: Date, toleranceMs = 72h)` → `{ purge: boolean; reason: 'expired' | 'stale-offline' | null }`:
+  - `lastRefreshAt` = čas posledního **úspěšného** načtení entitlements
+  - `purge: true`, `reason: 'expired'` když `e.status === 'expired'`
+  - `purge: true`, `reason: 'stale-offline'` když `now > e.validUntil` a entitlements se v toleranci (`toleranceMs`, default 72 h) neobnovily
+  - jinak `{ purge: false, reason: null }`
+- **Grace nikdy nepurgeuje** (`status === 'grace'` → `purge: false`)
+- Purge maže referenční obsah **včetně příloh** (ADR 0008); **poznámky uživatele nikdy**
+
+### Problem `entitlement-required`
+
+- Typ: `urn:pocketmech:problem:entitlement-required` (např. při 403 na manifest)
+- Rozšíření problem+json: `feature` a `entitlementStatus` (hodnoty jako `active` | `grace` | `expired`)
+- Pole **`status` v rozšíření se nepoužívá** — koliduje s RFC 9457 `status`
 
 ## Důsledky
 
@@ -62,3 +70,9 @@ SaaS s platbami výhradně přes in-app subscriptions (App Store, Google Play). 
 - Offline tolerance **72 h** čeká na potvrzení vlastníka.
 - Free tier je pouze rezervován.
 - Po expiraci subscription se referenční obsah maže z zařízení.
+
+## Revize 2026-10-21
+
+- `shouldPurgeReferenceContent` vrací `{ purge, reason }`; parametr `lastRefreshAt` a `toleranceMs` (default 72 h).
+- Grace nikdy nemaže; purge maže i přílohy, poznámky uživatele nikdy.
+- Problem `entitlement-required`: rozšíření `feature` + `entitlementStatus` (ne `status`).
