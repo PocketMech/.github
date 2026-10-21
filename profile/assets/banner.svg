@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="PocketMech banner">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B2A5B"/>
+      <stop offset="55%" stop-color="#123F86"/>
+      <stop offset="100%" stop-color="#1A56B0"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F5C518"/>
+      <stop offset="100%" stop-color="#FFE066"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="320" fill="url(#sky)"/>
+  <rect width="1280" height="320" fill="url(#grid)"/>
+
+  <!-- Geometric wing / chevron motif (left) -->
+  <g opacity="0.95">
+    <polygon points="80,160 220,70 260,90 140,160 260,230 220,250" fill="url(#accent)"/>
+    <polygon points="150,160 270,95 300,112 200,160 300,208 270,225" fill="#F5C518" opacity="0.55"/>
+  </g>
+
+  <!-- Geometric key / tool motif (right) -->
+  <g transform="translate(980,78)" fill="none" stroke="#F5C518" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="58" cy="58" r="38"/>
+    <circle cx="58" cy="58" r="14" fill="#0B2A5B" stroke="none"/>
+    <path d="M96 58 H188"/>
+    <path d="M152 58 V88"/>
+    <path d="M176 58 V78"/>
+  </g>
+
+  <!-- Typography -->
+  <text x="340" y="148" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="700" fill="#FFFFFF" letter-spacing="1">PocketMech</text>
+  <rect x="340" y="168" width="120" height="6" rx="3" fill="url(#accent)"/>
+  <text x="340" y="220" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="28" fill="#D7E6FF" letter-spacing="0.5">AeroTool  offline pocket reference for licensed mechanics</text>
+</svg>
