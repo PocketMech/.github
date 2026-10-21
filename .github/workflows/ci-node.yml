@@ -1,0 +1,166 @@
+name: CI Node
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: Node.js version to use
+        type: string
+        default: "20"
+      working-directory:
+        description: Directory containing package.json (relative to repo root)
+        type: string
+        default: "."
+      package-manager:
+        description: Package manager to use (npm, pnpm, or yarn)
+        type: string
+        default: "npm"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-node-${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for package.json
+        id: pkg
+        working-directory: ${{ github.workspace }}
+        run: |
+          PKG="${{ inputs.working-directory }}/package.json"
+          if [ ! -f "$PKG" ]; then
+            echo "notice=No package.json at ${{ inputs.working-directory }}/package.json — skipping Node CI steps." >> "$GITHUB_OUTPUT"
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=CI Node::No package.json found at '${{ inputs.working-directory }}'. Skipping install, lint, typecheck, test, and build."
+          else
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate package-manager input
+        if: steps.pkg.outputs.exists == 'true'
+        run: |
+          case "${{ inputs.package-manager }}" in
+            npm|pnpm|yarn) ;;
+            *)
+              echo "::error::Unsupported package-manager '${{ inputs.package-manager }}'. Use npm, pnpm, or yarn."
+              exit 1
+              ;;
+          esac
+
+      - name: Setup pnpm
+        if: steps.pkg.outputs.exists == 'true' && inputs.package-manager == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Enable Corepack (yarn)
+        if: steps.pkg.outputs.exists == 'true' && inputs.package-manager == 'yarn'
+        run: corepack enable
+
+      - name: Setup Node.js
+        if: steps.pkg.outputs.exists == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: ${{ inputs.package-manager }}
+          cache-dependency-path: |
+            ${{ inputs.working-directory }}/package-lock.json
+            ${{ inputs.working-directory }}/pnpm-lock.yaml
+            ${{ inputs.working-directory }}/yarn.lock
+
+      - name: Install dependencies
+        if: steps.pkg.outputs.exists == 'true'
+        run: |
+          case "${{ inputs.package-manager }}" in
+            npm)
+              if [ -f package-lock.json ]; then
+                npm ci
+              else
+                echo "::notice::No package-lock.json found; falling back to npm install."
+                npm install
+              fi
+              ;;
+            pnpm)
+              if [ -f pnpm-lock.yaml ]; then
+                pnpm install --frozen-lockfile
+              else
+                echo "::notice::No pnpm-lock.yaml found; falling back to pnpm install."
+                pnpm install
+              fi
+              ;;
+            yarn)
+              if [ -f yarn.lock ]; then
+                yarn install --frozen-lockfile
+              else
+                echo "::notice::No yarn.lock found; falling back to yarn install."
+                yarn install
+              fi
+              ;;
+          esac
+
+      - name: Lint
+        if: steps.pkg.outputs.exists == 'true'
+        run: |
+          VALUE="$(npm pkg get scripts.lint)"
+          if [ "$VALUE" = "null" ] || [ -z "$VALUE" ]; then
+            echo "::notice::No scripts.lint in package.json — skipping lint."
+            exit 0
+          fi
+          case "${{ inputs.package-manager }}" in
+            npm) npm run lint ;;
+            pnpm) pnpm run lint ;;
+            yarn) yarn run lint ;;
+          esac
+
+      - name: Typecheck
+        if: steps.pkg.outputs.exists == 'true'
+        run: |
+          VALUE="$(npm pkg get scripts.typecheck)"
+          if [ "$VALUE" = "null" ] || [ -z "$VALUE" ]; then
+            echo "::notice::No scripts.typecheck in package.json — skipping typecheck."
+            exit 0
+          fi
+          case "${{ inputs.package-manager }}" in
+            npm) npm run typecheck ;;
+            pnpm) pnpm run typecheck ;;
+            yarn) yarn run typecheck ;;
+          esac
+
+      - name: Test
+        if: steps.pkg.outputs.exists == 'true'
+        run: |
+          VALUE="$(npm pkg get scripts.test)"
+          if [ "$VALUE" = "null" ] || [ -z "$VALUE" ]; then
+            echo "::notice::No scripts.test in package.json — skipping test."
+            exit 0
+          fi
+          case "${{ inputs.package-manager }}" in
+            npm) npm test ;;
+            pnpm) pnpm test ;;
+            yarn) yarn test ;;
+          esac
+
+      - name: Build
+        if: steps.pkg.outputs.exists == 'true'
+        run: |
+          VALUE="$(npm pkg get scripts.build)"
+          if [ "$VALUE" = "null" ] || [ -z "$VALUE" ]; then
+            echo "::notice::No scripts.build in package.json — skipping build."
+            exit 0
+          fi
+          case "${{ inputs.package-manager }}" in
+            npm) npm run build ;;
+            pnpm) pnpm run build ;;
+            yarn) yarn run build ;;
+          esac
