@@ -1,0 +1,64 @@
+# Default label definitions for PocketMech repositories.
+# Definitions only — label sync / CI workflows are owned by DevOps.
+
+- name: bug
+  color: "d73a4a"
+  description: Something is not working as intended
+
+- name: feature
+  color: "a2eeef"
+  description: New capability or enhancement
+
+- name: docs
+  color: "0075ca"
+  description: Documentation or community health files
+
+- name: chore
+  color: "fef2c0"
+  description: Maintenance or housekeeping
+
+- name: security
+  color: "ee0701"
+  description: Security-related work or disclosure follow-up
+
+- name: ci
+  color: "000000"
+  description: Continuous integration / workflows
+
+- name: breaking-change
+  color: "b60205"
+  description: Introduces a breaking change
+
+- name: good first issue
+  color: "7057ff"
+  description: Good for newcomers
+
+- name: help wanted
+  color: "008672"
+  description: Extra attention is needed
+
+- name: needs-triage
+  color: "fbca04"
+  description: Needs maintainer triage
+
+# Component labels
+
+- name: mobile
+  color: "5319e7"
+  description: mobile-app component
+
+- name: core
+  color: "1d76db"
+  description: core library component
+
+- name: sync
+  color: "0e8a16"
+  description: sync-service component
+
+- name: admin
+  color: "c5def5"
+  description: admin-webterminal component
+
+- name: api
+  color: "f9d0c4"
+  description: api component

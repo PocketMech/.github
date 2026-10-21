@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Contributing guide
+    url: https://github.com/PocketMech/.github/blob/develop/CONTRIBUTING.md
+    about: Branching, commits, and pull request expectations
+  - name: Security policy
+    url: https://github.com/PocketMech/.github/blob/develop/SECURITY.md
+    about: Report vulnerabilities via GitHub Private Vulnerability Reporting
+  - name: Support
+    url: https://github.com/PocketMech/.github/blob/develop/SUPPORT.md
+    about: Where to ask for help and which repository to use
